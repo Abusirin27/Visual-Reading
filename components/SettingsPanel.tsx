@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Type, Bold, Minus, Plus, Sun, Lightbulb, Palette, ChevronUp, ChevronDown, Highlighter, PaintBucket, Zap } from 'lucide-react';
 import { ARABIC_FONTS, TRANSLATIONS, TEXT_COLORS } from '../constants';
@@ -56,8 +57,8 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
 
   return (
     <div className={`bg-surface border-t border-slate-700/50 p-2 shadow-2xl z-50 ${className}`}>
-      {/* Added overflow-x-auto for mobile scrollability and hide scrollbar */}
-      <div className="max-w-7xl mx-auto flex items-center justify-start md:justify-center gap-4 text-slate-300 overflow-x-auto no-scrollbar pb-1 px-1">
+      {/* Changed overflow-x-auto to overflow-visible to ensure color pickers aren't clipped */}
+      <div className="max-w-7xl mx-auto flex items-center justify-start md:justify-center gap-4 text-slate-300 overflow-visible px-4">
         
         {/* Speed Section */}
         <div className="flex-none flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-700/50" title={t.speed}>
@@ -80,29 +81,24 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
           />
         </div>
 
-        {/* Vertical Divider */}
         <div className="flex-none w-px h-8 bg-slate-700/50" />
 
         {/* Typography Section */}
         <div className="flex-none flex items-center gap-2">
-          {/* Font Select */}
           <div className="relative" title={t.font}>
             <select
               value={settings.fontFamily}
               onChange={(e) => onUpdate({ fontFamily: e.target.value })}
-              className="w-32 md:w-40 bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-primary focus:border-primary truncate appearance-none"
+              className="w-24 md:w-40 bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1.5 focus:ring-1 focus:ring-primary focus:border-primary truncate appearance-none"
               style={{ fontFamily: settings.fontFamily }}
             >
               {ARABIC_FONTS.map((font) => (
-                <option key={font.name} value={font.family} style={{ fontFamily: font.family }}>
-                  {font.name}
-                </option>
+                <option key={font.name} value={font.family} style={{ fontFamily: font.family }}>{font.name}</option>
               ))}
             </select>
             <ChevronDown size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
           </div>
 
-          {/* Size Stepper */}
           <div className="flex items-center bg-slate-900 rounded-lg border border-slate-700" title={t.size} style={{ direction: 'ltr' }}>
             <button onClick={() => handleFontSizeChange(-2)} className="p-1.5 hover:text-primary transition-colors"><Minus size={14} /></button>
             <input 
@@ -114,7 +110,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
             <button onClick={() => handleFontSizeChange(2)} className="p-1.5 hover:text-primary transition-colors"><Plus size={14} /></button>
           </div>
 
-          {/* Bold Toggle */}
           <button
             onClick={() => onUpdate({ isBold: !settings.isBold })}
             className={`p-1.5 rounded-lg border border-slate-700 transition-all ${
@@ -126,15 +121,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
           </button>
         </div>
 
-        {/* Vertical Divider */}
         <div className="flex-none w-px h-8 bg-slate-700/50" />
 
         {/* Appearance Section */}
         <div className="flex-none flex items-center gap-4">
-          
-          {/* Colors Group */}
           <div className="flex items-center gap-2">
-             {/* Text Color */}
              <div className="relative">
                <button 
                   onClick={() => { setShowColorPicker(!showColorPicker); setShowHighlightColorPicker(false); setShowBackgroundColorPicker(false); }}
@@ -148,11 +139,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                </button>
                {showColorPicker && (
                  <>
-                   <div className="fixed inset-0 z-[90]" onClick={() => setShowColorPicker(false)} />
-                   <div className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[100] w-max">
-                      <div className="grid grid-cols-10 gap-2">
+                   <div className="fixed inset-0 z-[80]" onClick={() => setShowColorPicker(false)} />
+                   <div className="absolute bottom-full left-0 mb-3 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[90] w-max max-w-[200px] md:max-w-none">
+                      <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
                           {TEXT_COLORS.map((color) => (
-                            <button key={color.name} onClick={() => { onUpdate({ textColor: color.value }); setShowColorPicker(false); }} className="w-5 h-5 rounded-full border border-transparent hover:border-white" style={{ backgroundColor: color.value }} title={color.name} />
+                            <button key={color.name} onClick={() => { onUpdate({ textColor: color.value }); setShowColorPicker(false); }} className="w-6 h-6 rounded-full border border-transparent hover:border-white transition-all hover:scale-110" style={{ backgroundColor: color.value }} title={color.name} />
                           ))}
                       </div>
                    </div>
@@ -160,7 +151,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                )}
              </div>
 
-             {/* Highlight Color */}
              <div className="relative">
                <button 
                   onClick={() => { setShowHighlightColorPicker(!showHighlightColorPicker); setShowColorPicker(false); setShowBackgroundColorPicker(false); }}
@@ -174,11 +164,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                </button>
                {showHighlightColorPicker && (
                  <>
-                   <div className="fixed inset-0 z-[90]" onClick={() => setShowHighlightColorPicker(false)} />
-                   <div className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[100] w-max">
-                      <div className="grid grid-cols-10 gap-2">
+                   <div className="fixed inset-0 z-[80]" onClick={() => setShowHighlightColorPicker(false)} />
+                   <div className="absolute bottom-full left-0 mb-3 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[90] w-max max-w-[200px] md:max-w-none">
+                      <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
                           {TEXT_COLORS.map((color) => (
-                            <button key={color.name} onClick={() => { onUpdate({ highlightColor: color.value }); setShowHighlightColorPicker(false); }} className="w-5 h-5 rounded-full border border-transparent hover:border-white" style={{ backgroundColor: color.value }} title={color.name} />
+                            <button key={color.name} onClick={() => { onUpdate({ highlightColor: color.value }); setShowHighlightColorPicker(false); }} className="w-6 h-6 rounded-full border border-transparent hover:border-white transition-all hover:scale-110" style={{ backgroundColor: color.value }} title={color.name} />
                           ))}
                       </div>
                    </div>
@@ -186,7 +176,6 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                )}
              </div>
 
-             {/* Background Color */}
              <div className="relative">
                <button 
                   onClick={() => { setShowBackgroundColorPicker(!showBackgroundColorPicker); setShowColorPicker(false); setShowHighlightColorPicker(false); }}
@@ -200,11 +189,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                </button>
                {showBackgroundColorPicker && (
                  <>
-                   <div className="fixed inset-0 z-[90]" onClick={() => setShowBackgroundColorPicker(false)} />
-                   <div className="absolute bottom-full left-0 mb-2 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[100] w-max">
-                      <div className="grid grid-cols-10 gap-2">
+                   <div className="fixed inset-0 z-[80]" onClick={() => setShowBackgroundColorPicker(false)} />
+                   <div className="absolute bottom-full left-0 mb-3 bg-slate-800 border border-slate-600 p-2 rounded-xl shadow-2xl z-[90] w-max max-w-[200px] md:max-w-none">
+                      <div className="grid grid-cols-5 md:grid-cols-10 gap-2">
                           {TEXT_COLORS.map((color) => (
-                            <button key={color.name} onClick={() => { onUpdate({ backgroundColor: color.value }); setShowBackgroundColorPicker(false); }} className="w-5 h-5 rounded-full border border-transparent hover:border-white" style={{ backgroundColor: color.value }} title={color.name} />
+                            <button key={color.name} onClick={() => { onUpdate({ backgroundColor: color.value }); setShowBackgroundColorPicker(false); }} className="w-6 h-6 rounded-full border border-transparent hover:border-white transition-all hover:scale-110" style={{ backgroundColor: color.value }} title={color.name} />
                           ))}
                       </div>
                    </div>
@@ -215,16 +204,13 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
 
           <div className="w-px h-8 bg-slate-700/50" />
 
-          {/* Effects Group */}
           <div className="flex items-center gap-3">
-             {/* Glow */}
              <div className="flex items-center gap-1 bg-slate-900 rounded-lg border border-slate-700 p-1" title={t.glow}>
-                <button onClick={() => handleGlowChange(-5)} className="hover:text-amber-400"><Minus size={12} /></button>
+                <button onClick={() => handleGlowChange(-5)} className="hover:text-amber-400 p-1"><Minus size={12} /></button>
                 <Lightbulb size={16} className={settings.glowIntensity > 0 ? "text-amber-400" : "text-slate-600"} />
-                <button onClick={() => handleGlowChange(5)} className="hover:text-amber-400"><Plus size={12} /></button>
+                <button onClick={() => handleGlowChange(5)} className="hover:text-amber-400 p-1"><Plus size={12} /></button>
              </div>
 
-             {/* Brightness */}
              <div className="flex items-center gap-2 bg-slate-900 rounded-lg border border-slate-700 px-2 py-1" title={t.brightness}>
                 <Sun size={16} className="text-slate-400"/>
                 <input 
@@ -234,16 +220,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
                   step="5"
                   value={settings.brightness}
                   onChange={handleBrightnessChange}
-                  className="w-16 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                  className="w-16 md:w-24 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
                   style={{ direction: 'ltr' }}
                 />
              </div>
           </div>
-
         </div>
-
-        {/* Hidden Icon for ChevronDown import usage check */}
-        <ChevronUp className="hidden" /> 
       </div>
     </div>
   );

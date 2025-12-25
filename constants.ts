@@ -1,7 +1,4 @@
 
-
-
-
 import { FontOption, ReaderSettings, ShortcutMap, ReadingMode } from './types';
 
 export const ARABIC_FONTS: FontOption[] = [
@@ -160,6 +157,7 @@ export const TRANSLATIONS = {
     read: 'قراءة',
     pause: 'توقف',
     reset: 'إعادة',
+    fullscreen: 'ملء الشاشة',
     pasteText: 'ضع النص العربي هنا... اضغط Enter للقراءة.',
     enterHint: 'اضغط Enter للقراءة. Shift+Enter لسطر جديد.',
     words: 'كلمة',
@@ -318,6 +316,7 @@ export const TRANSLATIONS = {
     read: 'Read',
     pause: 'Pause',
     reset: 'Reset',
+    fullscreen: 'Fullscreen',
     pasteText: 'Paste your Arabic text here... Press Enter to start reading.',
     enterHint: 'Press Enter to read. Shift+Enter for new line.',
     words: 'words',
