@@ -37,7 +37,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLogin, lang })
       // نحدد المسار بناءً على الحالة (دخول أم تسجيل)
       const endpoint = isLoginView ? 'login' : 'register';
       
-      const response = await fetch(`http://localhost:4000/${endpoint}`, {
+      const response = await fetch(`https://visual-reading-backend.onrender.com/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
