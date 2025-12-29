@@ -1,0 +1,21 @@
+{
+  "name": "RapidRead Desktop",
+  "short_name": "RapidRead",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "description": "High-performance speed reading application for desktop.",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3358/3358087.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3358/3358087.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

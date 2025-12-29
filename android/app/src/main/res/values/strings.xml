@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Visual Reading</string>
+    <string name="title_activity_main">Visual Reading</string>
+    <string name="package_name">com.visual.reading</string>
+    <string name="custom_url_scheme">com.visual.reading</string>
+</resources>
