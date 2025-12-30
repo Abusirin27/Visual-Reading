@@ -70,7 +70,7 @@ export const ALL_READING_MODES: ReadingMode[] = [
   'outline',
   'neon',
   'mirror',
-  'jelly', // Replaced
+  'jelly', 
   'flash',
   'dim',
   'boxed',
@@ -78,8 +78,8 @@ export const ALL_READING_MODES: ReadingMode[] = [
   'marker',
   'thick',
   'shake',
-  'swing', // Replaced
-  'slideDown' // Replaced
+  'swing', 
+  'slideDown' 
 ];
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
@@ -112,7 +112,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
 
 export const DEFAULT_SETTINGS: ReaderSettings = {
   wpm: 200,
-  fontSize: 32, // Adjusted default for better mobile fit
+  fontSize: 32, 
   fontFamily: ARABIC_FONTS[0].family,
   isBold: false,
   textAlign: 'right',
@@ -124,27 +124,17 @@ export const DEFAULT_SETTINGS: ReaderSettings = {
   glowIntensity: 0,
 };
 
-export const SAMPLE_TEXT = `الحمد لله والصلاة والسلام على رسول الله وعلى آله وصحبه أجمعين.
+export const SAMPLE_TEXT = `أهلاً بك في تطبيق القراءة البصرية السريعة!
 
-وبعد،
+هذا البرنامج مصمم لمساعدتك على قراءة النصوص العربية بتركيز عالٍ وسرعة فائقة. إليك دليل سريع للبدء:
 
-أهلاً بك في برنامج "القراءة البصرية". يسعدنا انضمامك إلينا في هذه الرحلة لتطوير مهاراتك القرائية.
+1. الصق النص الذي تود قراءته هنا في هذا المحرر.
+2. اضغط على زر "قراءة" أو مفتاح (المسافة) للبدء في العرض البصري.
+3. استخدم مفاتيح الأسهم (يمين/يسار) للتنقل يدوياً بين الكلمات.
+4. يمكنك التحكم في سرعة القراءة (WPM) وحجم الخط من الشريط السفلي.
+5. جرب أنماط القراءة المختلفة من قائمة "النمط" لتجد ما يناسب عينيك.
 
-كيف تستفيد من هذا البرنامج؟
-صُمم هذا البرنامج ليعالج مشكلة التشتت أثناء القراءة ولزيادة سرعة استيعابك للنصوص. من خلال عرض النص كلمة تلو الأخرى أو بنمط الآلة الكاتبة، نساعد عينيك على التركيز في نقطة واحدة، مما يقلل من الإجهاد ويزيد من السرعة والكفاءة.
-
-مميزات البرنامج التي ستعجبك:
-- تحكم كامل في المظهر: اختر لون النص، الخلفية، ونوع الخط من بين مجموعة واسعة من الخطوط العربية والقرآنية.
-- أنماط قراءة متنوعة: جرب نمط "تسليط الضوء" للتركيز الشديد، أو نمط "الآلة الكاتبة" لقراءة انسيابية، أو "الكلمات المتتابعة" لسرعة قصوى.
-- تقنية بومودورو: استخدم المؤقت المدمج (أيقونة الساعة) لتقسيم وقت القراءة إلى جلسات تركيز وفترات راحة.
-- اختصارات لوحة المفاتيح: لست بحاجة للفأرة! استخدم المسافة للتشغيل والإيقاف، والأسهم للتنقل بين الكلمات، وحرف E لفتح المحرر.
-
-خطوات الاستخدام:
-1. اضغط على زر "تحرير" (أو حرف E) لفتح المحرر، ثم الصق النص الذي تود قراءته.
-2. اضغط على زر "قراءة" (أو مفتاح المسافة) لبدء العرض.
-3. تحكم في السرعة وحجم الخط من الشريط السفلي أثناء القراءة لتجد الوتيرة المناسبة لك.
-
-نتمنى لك تجربة ممتعة ومفيدة!`;
+نتمنى لك رحلة قراءة ممتعة ومثمرة!`;
 
 export const TRANSLATIONS = {
   ar: {
@@ -158,10 +148,11 @@ export const TRANSLATIONS = {
     pause: 'توقف',
     reset: 'إعادة',
     fullscreen: 'ملء الشاشة',
-    pasteText: 'ضع النص العربي هنا... اضغط Enter للقراءة.',
+    pasteText: 'الصق النص الذي تريد قراءته أو أدخل النص.',
     enterHint: 'اضغط Enter للقراءة. Shift+Enter لسطر جديد.',
     words: 'كلمة',
     loading: 'جاري التحميل...',
+    donate: 'تبرع',
     menu: {
       turath: 'تراث',
       quran: 'القرآن الكريم (تفسير)',
@@ -181,6 +172,19 @@ export const TRANSLATIONS = {
       error: 'خطأ في البيانات',
       successRegister: 'تم إنشاء الحساب بنجاح',
       successLogin: 'تم تسجيل الدخول بنجاح'
+    },
+    donation: {
+      title: 'دعم المشروع (تبرع برصيد)',
+      subtitle: 'دعمكم يضمن استمرار وتطوير البرنامج مجاناً للجميع',
+      selectNetwork: 'اختر الشبكة:',
+      libyana: 'ليبيانا',
+      almadar: 'المدار',
+      scratchCard: 'ادخل رقم بطاقة التعبئة******',
+      scratchPlaceholder: 'ادخل رقم بطاقة التعبئة******',
+      submitCode: 'إرسال',
+      success: 'شكراً لدعمك! سيتم مراجعة الكود قريباً.',
+      error: 'يرجى إدخال كود الكرت بشكل صحيح.',
+      hint: 'سيتم إرسال الكود بريدياً للمطورين للمراجعة والتحقق.',
     },
     settings: {
       speed: 'السرعة',
@@ -317,10 +321,11 @@ export const TRANSLATIONS = {
     pause: 'Pause',
     reset: 'Reset',
     fullscreen: 'Fullscreen',
-    pasteText: 'Paste your Arabic text here... Press Enter to start reading.',
+    pasteText: 'Paste the text you want to read or enter the text.',
     enterHint: 'Press Enter to read. Shift+Enter for new line.',
     words: 'words',
     loading: 'Loading...',
+    donate: 'Donate',
     menu: {
       turath: 'Turath',
       quran: 'The Holy Quran (Tafsir)',
@@ -340,6 +345,19 @@ export const TRANSLATIONS = {
       error: 'Invalid Data',
       successRegister: 'Account created successfully',
       successLogin: 'Logged in successfully'
+    },
+    donation: {
+      title: 'Support Project (Donate Credit)',
+      subtitle: 'Your support ensures the app remains free for everyone',
+      selectNetwork: 'Select Network:',
+      libyana: 'Libyana',
+      almadar: 'Al-Madar',
+      scratchCard: 'Enter recharge card number******',
+      scratchPlaceholder: 'Enter recharge card number******',
+      submitCode: 'Send',
+      success: 'Thank you! Code submitted for review.',
+      error: 'Please enter a valid card code.',
+      hint: 'The code will be sent to developers for review and verification.',
     },
     settings: {
       speed: 'Speed',

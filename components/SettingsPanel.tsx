@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Type, Bold, Minus, Plus, Sun, Lightbulb, Palette, ChevronUp, ChevronDown, Highlighter, PaintBucket, Zap } from 'lucide-react';
+import { Type, Bold, Minus, Plus, Sun, Lightbulb, Palette, ChevronUp, ChevronDown, Highlighter, PaintBucket, Zap, Maximize, Minimize, Expand, Shrink } from 'lucide-react';
 import { ARABIC_FONTS, TRANSLATIONS, TEXT_COLORS } from '../constants';
 import { ReaderSettings, Language } from '../types';
 
@@ -10,9 +10,11 @@ interface SettingsPanelProps {
   onShowFeedback: (message: string) => void;
   className?: string;
   lang: Language;
+  isFocusMode: boolean;
+  onToggleFocusMode: () => void;
 }
 
-const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onShowFeedback, className, lang }) => {
+const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onShowFeedback, className, lang, isFocusMode, onToggleFocusMode }) => {
   const t = TRANSLATIONS[lang].settings;
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showHighlightColorPicker, setShowHighlightColorPicker] = useState(false);
@@ -57,28 +59,41 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ settings, onUpdate, onSho
 
   return (
     <div className={`bg-surface border-t border-slate-700/50 p-2 shadow-2xl z-50 ${className}`}>
-      {/* Changed overflow-x-auto to overflow-visible to ensure color pickers aren't clipped */}
       <div className="max-w-7xl mx-auto flex items-center justify-start md:justify-center gap-4 text-slate-300 overflow-visible px-4">
         
-        {/* Speed Section */}
-        <div className="flex-none flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-700/50" title={t.speed}>
-          <div className="p-1 text-primary"><Zap size={16} /></div>
-          <input 
-            type="number" 
-            value={settings.wpm}
-            onChange={handleWpmInputChange}
-            className="w-12 bg-transparent text-sm font-mono text-center text-primary font-bold focus:outline-none"
-          />
-          <input
-            type="range"
-            min="60"
-            max="1000"
-            step="20"
-            value={settings.wpm}
-            onChange={handleWpmChange}
-            className="w-20 md:w-32 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
-            style={{ direction: 'ltr' }}
-          />
+        {/* Speed & Zoom Section */}
+        <div className="flex-none flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-slate-900/50 rounded-lg p-1 border border-slate-700/50" title={t.speed}>
+            <div className="p-1 text-primary"><Zap size={16} /></div>
+            <input 
+              type="number" 
+              value={settings.wpm}
+              onChange={handleWpmInputChange}
+              className="w-12 bg-transparent text-sm font-mono text-center text-primary font-bold focus:outline-none"
+            />
+            <input
+              type="range"
+              min="60"
+              max="1000"
+              step="20"
+              value={settings.wpm}
+              onChange={handleWpmChange}
+              className="w-20 md:w-32 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary"
+              style={{ direction: 'ltr' }}
+            />
+          </div>
+
+          <button 
+            onClick={onToggleFocusMode}
+            className={`flex items-center justify-center p-2 rounded-lg border transition-all active:scale-90 ${
+              isFocusMode 
+                ? 'bg-primary/20 border-primary text-primary shadow-[0_0_10px_rgba(56,189,248,0.2)]' 
+                : 'bg-slate-900/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'
+            }`}
+            title={lang === 'ar' ? 'تركيز نافذة القراءة (Z)' : 'Reader Focus Mode (Z)'}
+          >
+            {isFocusMode ? <Shrink size={18} /> : <Expand size={18} />}
+          </button>
         </div>
 
         <div className="flex-none w-px h-8 bg-slate-700/50" />
