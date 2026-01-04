@@ -16,6 +16,7 @@ interface ReaderDisplayProps {
   isPlaying?: boolean;
   isFocusMode?: boolean;
   showUI?: boolean;
+  isAnyModalOpen?: boolean;
 }
 
 const ReaderDisplay: React.FC<ReaderDisplayProps> = ({ 
@@ -28,7 +29,8 @@ const ReaderDisplay: React.FC<ReaderDisplayProps> = ({
   onTogglePlay, 
   isPlaying = false,
   isFocusMode = false,
-  showUI = true
+  showUI = true,
+  isAnyModalOpen = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -165,8 +167,12 @@ const ReaderDisplay: React.FC<ReaderDisplayProps> = ({
             </div>
             <OverlayFeedback message={feedbackMessage} />
 
-            {/* In-Reader Progress Bar with Focus mode auto-hide */}
-            <div className={`absolute bottom-0 left-0 right-0 z-40 transition-all duration-500 ${(!showUI && isFocusMode) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+            {/* In-Reader Progress Bar with Focus mode auto-hide and dynamic shifting to stay above bottom bar */}
+            <div className={`absolute left-0 right-0 z-[210] transition-all duration-500 ${
+              ((!showUI && isFocusMode) || isAnyModalOpen) ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'
+            } ${
+              (showUI && isFocusMode) ? 'bottom-14 md:bottom-16' : 'bottom-0'
+            }`}>
                 <div className="bg-slate-900/90 backdrop-blur-lg border-t border-slate-700/50 pb-4 pt-2 px-6 flex items-center justify-between gap-6 shadow-2xl">
                     <button onClick={(e) => { e.stopPropagation(); onTogglePlay?.(); }} className="p-3 rounded-full bg-primary/20 text-primary hover:bg-primary hover:text-slate-900 transition-all active:scale-90">{isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}</button>
                     <div ref={progressBarRef} className="flex-1 relative h-8 flex items-center group cursor-pointer" onMouseDown={(e) => { e.stopPropagation(); handleSeekInternal(e.clientX); setIsDraggingProgress(true); }}>

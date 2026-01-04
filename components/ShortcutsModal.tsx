@@ -42,7 +42,7 @@ const ShortcutsModal: React.FC<ShortcutsModalProps> = ({ isOpen, onClose, shortc
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <div className="bg-surface border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between p-4 border-b border-slate-700">
           <div className="flex items-center gap-2 text-primary">

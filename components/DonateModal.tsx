@@ -56,12 +56,12 @@ const DonateModal: React.FC<DonateModalProps> = ({ isOpen, onClose, lang }) => {
   const isButtonDisabled = !cardCode || cardCode.trim().length !== 13 || loading;
 
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
       <div className="bg-surface border border-slate-700 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col relative">
         
         {/* Copy Feedback Toast */}
         {copyFeedback && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[200] bg-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[350] bg-emerald-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
             {copyFeedback}
           </div>
         )}

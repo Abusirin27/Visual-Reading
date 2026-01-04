@@ -44,6 +44,10 @@ function App() {
   const uiTimeoutRef = useRef<number | null>(null);
   const t = TRANSLATIONS[lang];
 
+  const isAnyModalOpen = useMemo(() => 
+    isShortcutsOpen || isAuthModalOpen || isStatsOpen || isDonateOpen, 
+  [isShortcutsOpen, isAuthModalOpen, isStatsOpen, isDonateOpen]);
+
   // Auto-hide UI logic for Focus Mode
   useEffect(() => {
     const handleMouseMove = () => {
@@ -233,9 +237,9 @@ function App() {
   const progressPercentage = useMemo(() => words.length === 0 ? 0 : Math.min(100, Math.max(0, ((currentIndex + 1) / words.length) * 100)), [currentIndex, words.length]);
 
   return (
-    <div className={`flex flex-col h-screen bg-background text-slate-200 font-sans transition-all duration-300 ${lang === 'ar' ? 'text-lg' : ''}`} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className={`relative flex flex-col h-screen bg-background text-slate-200 font-sans transition-all duration-300 ${lang === 'ar' ? 'text-lg' : ''}`} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       {(pomodoroMode === 'short' || pomodoroMode === 'long') && (
-        <div className="fixed inset-0 z-[300] bg-black/95 flex flex-col items-center justify-center text-center backdrop-blur-sm">
+        <div className="fixed inset-0 z-[400] bg-black/95 flex flex-col items-center justify-center text-center backdrop-blur-sm">
            <Coffee size={80} className="text-amber-500 mb-6 animate-bounce" />
            <h2 className="text-4xl font-bold text-white mb-4">{t.pomodoro.breakTime}</h2>
            <p className="text-slate-400 text-xl mb-8">{t.pomodoro.relax}</p>
@@ -243,8 +247,12 @@ function App() {
         </div>
       )}
 
-      {/* Header: Controls app-wide browser fullscreen */}
-      <header className={`flex-none h-14 md:h-16 bg-surface/90 backdrop-blur-md border-b border-slate-700 flex items-center justify-between z-[200] sticky top-0 shadow-lg px-2 md:px-4 transition-all duration-500 ${isFocusMode && !showUI ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+      {/* Header: Absolute when in Focus Mode to allow reader to occupy full screen */}
+      <header className={`transition-all duration-500 bg-surface/90 backdrop-blur-md border-b border-slate-700 flex items-center justify-between shadow-lg px-2 md:px-4 ${
+        isFocusMode 
+          ? 'absolute top-0 left-0 right-0 z-[200] h-14 md:h-16' 
+          : 'relative z-[200] flex-none h-14 md:h-16'
+      } ${isFocusMode && !showUI ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="flex-none flex items-center gap-1.5 md:gap-3 bg-surface shrink-0">
           <div className="bg-gradient-to-br from-primary to-accent p-1.5 rounded-lg text-slate-900 shadow-lg"><BookOpen size={18} className="md:w-6 md:h-6" /></div>
           <div className="hidden xs:flex flex-col justify-center">
@@ -317,8 +325,8 @@ function App() {
         </div>
       </header>
 
-      <main className={`flex-1 relative flex flex-col min-h-0 transition-all duration-500 ${isFocusMode ? 'mt-0' : ''}`}>
-        <div className={`h-1 w-full bg-slate-800 transition-opacity duration-500 ${isFocusMode && !showUI ? 'opacity-0' : 'opacity-100'}`}>
+      <main className={`relative transition-all duration-500 flex flex-col ${isFocusMode ? 'h-full w-full' : 'flex-1 min-h-0'}`}>
+        <div className={`h-1 w-full bg-slate-800 transition-opacity duration-500 ${isFocusMode && !showUI ? 'opacity-0' : 'opacity-100'} z-[210] ${isFocusMode ? 'absolute top-0 md:top-0' : ''}`}>
           <div className="h-full bg-primary transition-all duration-300 ease-linear" style={{ width: `${progressPercentage}%` }} />
         </div>
         {mode === 'edit' ? (
@@ -341,12 +349,17 @@ function App() {
             isPlaying={isPlaying} 
             isFocusMode={isFocusMode}
             showUI={showUI}
+            isAnyModalOpen={isAnyModalOpen}
           />
         )}
       </main>
 
-      {/* Footer Settings with Focus Mode Auto-hide. Button here controls Reader Window Focus/Zoom */}
-      <div className={`transition-all duration-500 transform ${isFocusMode && !showUI ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+      {/* Footer Wrapper: Floating (absolute) in Focus Mode */}
+      <div className={`transition-all duration-500 transform ${
+        isFocusMode 
+          ? 'absolute bottom-0 left-0 right-0 z-[200]' 
+          : 'relative flex-none'
+      } ${isFocusMode && !showUI ? 'translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <SettingsPanel 
           settings={settings} 
           onUpdate={updateSettings} 
