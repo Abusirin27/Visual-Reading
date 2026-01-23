@@ -1,22 +1,16 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Play, Pause, RotateCcw, Edit3, BookOpen, Keyboard, Layers, ChevronDown, Menu, Library, Globe, ExternalLink, ScrollText, User as UserIcon, LogOut, Settings2, Zap, Sparkles, X, Book, Coffee, Download, Monitor, Laptop, Maximize, Minimize, Heart, CreditCard, Send, MessageCircle, Mail, Expand, Shrink } from 'lucide-react';
+import { Play, Pause, RotateCcw, Edit3, BookOpen, Keyboard, Layers, ChevronDown, Menu, Library, Globe, ExternalLink, ScrollText, User as UserIcon, LogOut, Settings2, Zap, Sparkles, X, Book, Coffee, Download, Monitor, Laptop, Maximize, Minimize, Heart, CreditCard, Send, MessageCircle, Mail, Expand, Shrink, Search } from 'lucide-react';
 import SettingsPanel from './components/SettingsPanel';
 import ReaderDisplay from './components/ReaderDisplay';
 import ShortcutsModal from './components/ShortcutsModal';
 import PomodoroTimer from './components/PomodoroTimer';
-import AuthModal from './components/AuthModal';
 import StatisticsModal from './components/StatisticsModal';
 import DonateModal from './components/DonateModal';
-import { DEFAULT_SETTINGS, SAMPLE_TEXT, DEFAULT_SHORTCUTS, TRANSLATIONS, ARABIC_FONTS, TEXT_COLORS, ALL_READING_MODES } from './constants';
+import { DEFAULT_SETTINGS, SAMPLE_TEXT, DEFAULT_SHORTCUTS, TRANSLATIONS, ARABIC_FONTS, TEXT_COLORS, ALL_READING_MODES, ESSENTIAL_COLORS } from './constants';
 import { ReaderSettings, ShortcutMap, ReadingMode, Language, ReadingSession, PomodoroMode } from './types';
-import { useAuth } from './AuthContext';
-import { auth, db } from './firebase';
-import { doc, updateDoc, arrayUnion, increment } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
-import { signOut } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 
 function App() {
-  const { user, userData } = useAuth();
   const [inputText, setInputText] = useState<string>(SAMPLE_TEXT);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
@@ -31,22 +25,21 @@ function App() {
   const [shortcuts, setShortcuts] = useState<ShortcutMap>(DEFAULT_SHORTCUTS);
   
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
-  const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
-  const [isExternalMenuOpen, setIsExternalMenuOpen] = useState(false);
+  const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [isPomodoroOpen, setIsPomodoroOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [isDonateOpen, setIsDonateOpen] = useState(false);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
   const [pomodoroMode, setPomodoroMode] = useState<PomodoroMode>('focus');
   const [sessions, setSessions] = useState<ReadingSession[]>([]);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
   const uiTimeoutRef = useRef<number | null>(null);
   const t = TRANSLATIONS[lang];
 
+  // Logic to hide distracting elements when settings or modals are active
   const isAnyModalOpen = useMemo(() => 
-    isShortcutsOpen || isAuthModalOpen || isStatsOpen || isDonateOpen, 
-  [isShortcutsOpen, isAuthModalOpen, isStatsOpen, isDonateOpen]);
+    isShortcutsOpen || isStatsOpen || isDonateOpen || isColorMenuOpen || isLibraryOpen || isPomodoroOpen, 
+  [isShortcutsOpen, isStatsOpen, isDonateOpen, isColorMenuOpen, isLibraryOpen, isPomodoroOpen]);
 
   // Auto-hide UI logic for Focus Mode
   useEffect(() => {
@@ -58,7 +51,7 @@ function App() {
       setShowUI(true);
       if (uiTimeoutRef.current) window.clearTimeout(uiTimeoutRef.current);
       uiTimeoutRef.current = window.setTimeout(() => {
-        if (isFocusMode && isPlaying) setShowUI(false);
+        if (isFocusMode && isPlaying && !isAnyModalOpen) setShowUI(false);
       }, 2500);
     };
 
@@ -67,7 +60,7 @@ function App() {
       window.removeEventListener('mousemove', handleMouseMove);
       if (uiTimeoutRef.current) window.clearTimeout(uiTimeoutRef.current);
     };
-  }, [isFocusMode, isPlaying]);
+  }, [isFocusMode, isPlaying, isAnyModalOpen]);
 
   const socialLinks = useMemo(() => [
     { name: 'Telegram', icon: Send, url: 'https://t.me/Abusirin1445', hoverColor: 'hover:text-[#0088cc]', tooltip: lang === 'ar' ? 'تليجرام: @Abusirin1445' : 'Telegram: @Abusirin1445' },
@@ -90,16 +83,6 @@ function App() {
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setIsUserMenuOpen(false);
-      triggerFeedback(lang === 'ar' ? 'تم تسجيل الخروج' : 'Logged out');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const sessionStartTime = useRef<number | null>(null);
   const startWordIndex = useRef<number>(0);
 
@@ -120,21 +103,21 @@ function App() {
             wpm: settings.wpm
           };
           setSessions(prev => [...prev, newSession]);
-          if (user) {
-            const userDoc = doc(db, "users", user.uid);
-            updateDoc(userDoc, {
-              sessions: arrayUnion(newSession),
-              total_words_read: increment(wordsRead),
-              reading_time: increment(duration)
-            }).catch(console.error);
-          }
         }
         sessionStartTime.current = null;
       }
     }
-  }, [isPlaying, user]);
+  }, [isPlaying]);
 
   const words = useMemo(() => inputText.trim().split(/\s+/).filter(w => w.length > 0), [inputText]);
+
+  const timeRemainingString = useMemo(() => {
+    const remainingWords = Math.max(0, words.length - (currentIndex + 1));
+    const seconds = settings.wpm > 0 ? Math.ceil((remainingWords / settings.wpm) * 60) : 0;
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }, [words.length, currentIndex, settings.wpm]);
 
   useEffect(() => {
     let intervalId: number | undefined;
@@ -157,20 +140,30 @@ function App() {
     return () => { if (intervalId) clearInterval(intervalId); };
   }, [isPlaying, settings.wpm, words.length, currentIndex]);
 
-  const handleReset = useCallback(() => { setIsPlaying(false); setCurrentIndex(-1); }, []);
+  const handleReset = useCallback(() => { 
+    setIsPlaying(false); 
+    setCurrentIndex(-1); 
+    triggerFeedback(lang === 'ar' ? 'إعادة تشغيل' : 'Restarted');
+  }, [lang, triggerFeedback]);
+
   const handleSeek = useCallback((index: number) => { setCurrentIndex(index); }, []);
   const requestPlayback = useCallback((shouldPlay: boolean) => {
     if (shouldPlay) {
       if (mode === 'edit') {
         setMode('read');
-        handleReset();
+        setCurrentIndex(-1);
+        setIsPlaying(false);
         setTimeout(() => setIsPlaying(true), 50);
         return;
       }
-      if (currentIndex >= words.length - 1) { handleReset(); setTimeout(() => setIsPlaying(true), 10); }
+      if (currentIndex >= words.length - 1) { 
+        setCurrentIndex(-1);
+        setIsPlaying(false);
+        setTimeout(() => setIsPlaying(true), 10); 
+      }
       else { setIsPlaying(true); }
     } else { setIsPlaying(false); }
-  }, [mode, currentIndex, words.length, handleReset]);
+  }, [mode, currentIndex, words.length]);
 
   const togglePlay = useCallback(() => requestPlayback(!isPlaying), [requestPlayback, isPlaying]);
   const updateSettings = useCallback((newSettings: Partial<ReaderSettings>) => { setSettings(prev => ({ ...prev, ...newSettings })); }, []);
@@ -217,22 +210,23 @@ function App() {
       else if (matches(shortcuts.incBrightness)) { e.preventDefault(); const newVal = Math.min(150, settings.brightness + 5); updateSettings({ brightness: newVal }); triggerFeedback(`${newVal}%`); }
       else if (matches(shortcuts.decBrightness)) { e.preventDefault(); const newVal = Math.max(10, settings.brightness - 5); updateSettings({ brightness: newVal }); triggerFeedback(`${newVal}%`); }
       else if (matches(shortcuts.nextFont)) { e.preventDefault(); const curIdx = ARABIC_FONTS.findIndex(f => f.family === settings.fontFamily); const nextIdx = (curIdx + 1) % ARABIC_FONTS.length; updateSettings({ fontFamily: ARABIC_FONTS[nextIdx].family }); triggerFeedback(ARABIC_FONTS[nextIdx].name); }
-      else if (matches(shortcuts.nextColor)) { e.preventDefault(); const curIdx = TEXT_COLORS.findIndex(c => c.value === settings.textColor); const nextIdx = (curIdx + 1) % TEXT_COLORS.length; updateSettings({ textColor: TEXT_COLORS[nextIdx].value }); triggerFeedback(TEXT_COLORS[nextIdx].name); }
+      else if (matches(shortcuts.nextColor)) { e.preventDefault(); const curIdx = ESSENTIAL_COLORS.findIndex(c => c.value === settings.textColor); const nextIdx = (curIdx + 1) % ESSENTIAL_COLORS.length; updateSettings({ textColor: ESSENTIAL_COLORS[nextIdx].value }); triggerFeedback(ESSENTIAL_COLORS[nextIdx].name); }
+      else if (matches(shortcuts.nextHighlightColor)) { e.preventDefault(); const curIdx = ESSENTIAL_COLORS.findIndex(c => c.value === settings.highlightColor); const nextIdx = (curIdx + 1) % ESSENTIAL_COLORS.length; updateSettings({ highlightColor: ESSENTIAL_COLORS[nextIdx].value }); triggerFeedback(`${t.settings.highlightColor}: ${ESSENTIAL_COLORS[nextIdx].name}`); }
       else if (matches(shortcuts.incGlow)) { e.preventDefault(); const newVal = Math.min(50, settings.glowIntensity + 5); updateSettings({ glowIntensity: newVal }); triggerFeedback(`${newVal}`); }
       else if (matches(shortcuts.decGlow)) { e.preventDefault(); const newVal = Math.max(0, settings.glowIntensity - 5); updateSettings({ glowIntensity: newVal }); triggerFeedback(`${newVal}`); }
       else if (matches(shortcuts.toggleBold)) { e.preventDefault(); const newVal = !settings.isBold; updateSettings({ isBold: newVal }); triggerFeedback(newVal ? (lang === 'ar' ? 'غامق' : 'Bold') : (lang === 'ar' ? 'عادي' : 'Normal')); }
       else if (matches(shortcuts.toggleLang)) { e.preventDefault(); setLang(prev => prev === 'ar' ? 'en' : 'ar'); triggerFeedback(lang === 'ar' ? 'English' : 'عربي'); }
       else if (matches(shortcuts.nextMode)) { e.preventDefault(); const curIdx = ALL_READING_MODES.indexOf(settings.readingMode); const nextIdx = (curIdx + 1) % ALL_READING_MODES.length; updateSettings({ readingMode: ALL_READING_MODES[nextIdx] }); triggerFeedback(t.modes[ALL_READING_MODES[nextIdx] as keyof typeof t.modes]); }
       else if (matches(shortcuts.toggleEdit)) { e.preventDefault(); setMode(prev => prev === 'read' ? 'edit' : 'read'); }
-      else if (matches(shortcuts.clearText)) { if (mode === 'edit') { e.preventDefault(); setInputText(''); handleReset(); triggerFeedback(lang === 'ar' ? 'تم مسح النص' : 'Text Cleared'); } }
+      else if (matches(shortcuts.clearText)) { if (mode === 'edit') { e.preventDefault(); setInputText(''); setCurrentIndex(-1); setIsPlaying(false); triggerFeedback(lang === 'ar' ? 'تم مسح النص' : 'Text Cleared'); } }
       else if (matches(shortcuts.togglePomodoro)) { e.preventDefault(); setIsPomodoroOpen(prev => !prev); }
-      else if (matches(shortcuts.toggleLibrary)) { e.preventDefault(); setIsExternalMenuOpen(prev => !prev); }
+      else if (matches(shortcuts.toggleLibrary)) { e.preventDefault(); setIsLibraryOpen(prev => !prev); }
       else if (matches(shortcuts.toggleShortcuts)) { e.preventDefault(); setIsShortcutsOpen(prev => !prev); }
       else if (matches(shortcuts.toggleStats)) { e.preventDefault(); setIsStatsOpen(prev => !prev); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [togglePlay, settings, updateSettings, words.length, shortcuts, isShortcutsOpen, triggerFeedback, handleReset, lang, t.modes, mode, isPomodoroOpen, isExternalMenuOpen, toggleFocusMode]);
+  }, [togglePlay, settings, updateSettings, words.length, shortcuts, isShortcutsOpen, triggerFeedback, handleReset, lang, t.modes, mode, isPomodoroOpen, isLibraryOpen, toggleFocusMode, t.settings.highlightColor]);
 
   const progressPercentage = useMemo(() => words.length === 0 ? 0 : Math.min(100, Math.max(0, ((currentIndex + 1) / words.length) * 100)), [currentIndex, words.length]);
 
@@ -247,22 +241,32 @@ function App() {
         </div>
       )}
 
-      {/* Header: Absolute when in Focus Mode to allow reader to occupy full screen */}
+      {/* Header: Absolute when in Focus Mode */}
       <header className={`transition-all duration-500 bg-surface/90 backdrop-blur-md border-b border-slate-700 flex items-center justify-between shadow-lg px-2 md:px-4 ${
         isFocusMode 
           ? 'absolute top-0 left-0 right-0 z-[200] h-14 md:h-16' 
           : 'relative z-[200] flex-none h-14 md:h-16'
       } ${isFocusMode && !showUI ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="flex-none flex items-center gap-1.5 md:gap-3 bg-surface shrink-0">
-          <div className="bg-gradient-to-br from-primary to-accent p-1.5 rounded-lg text-slate-900 shadow-lg"><BookOpen size={18} className="md:w-6 md:h-6" /></div>
-          <div className="hidden xs:flex flex-col justify-center">
-             <h1 className="text-sm md:text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent leading-none truncate max-w-[60px] md:max-w-none tracking-tight">{t.appTitle}</h1>
-          </div>
+          <button 
+            onClick={handleReset}
+            className="flex items-center gap-1.5 md:gap-3 group active:scale-95 transition-transform"
+            title={lang === 'ar' ? 'إعادة تشغيل البرنامج' : 'Restart Program'}
+          >
+            <div className="bg-gradient-to-br from-lime-400 to-emerald-500 p-1.5 rounded-lg text-slate-900 shadow-[0_0_20px_rgba(163,230,53,0.6)] group-hover:shadow-[0_0_30px_rgba(163,230,53,0.8)] transition-all">
+              <BookOpen size={18} className="md:w-6 md:h-6" />
+            </div>
+            <div className="hidden xs:flex flex-col justify-center">
+               <h1 className="text-sm md:text-lg font-black bg-clip-text text-transparent bg-gradient-to-br from-lime-400 to-emerald-500 leading-none truncate max-w-[60px] md:max-w-none tracking-tight drop-shadow-[0_0_10px_rgba(163,230,53,0.4)]">
+                 {t.appTitle}
+               </h1>
+            </div>
+          </button>
           
           <div className="flex items-center gap-1 md:gap-2">
             <button 
               onClick={() => setIsDonateOpen(true)} 
-              className="relative flex items-center gap-1.5 px-4 py-2 text-[11px] md:text-xs font-black uppercase tracking-widest bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 hover:from-emerald-400 hover:to-teal-500 text-slate-900 transition-all rounded-full shadow-[0_4px_15px_rgba(16,185,129,0.3)] hover:shadow-[0_8px_25px_rgba(16,185,129,0.4)] active:scale-95 group overflow-hidden border border-white/20"
+              className="relative flex items-center gap-1.5 px-4 py-2 text-[11px] md:text-xs font-black uppercase tracking-widest bg-gradient-to-br from-lime-400 to-emerald-500 hover:brightness-110 text-slate-900 transition-all rounded-full shadow-[0_0_20px_rgba(163,230,53,0.5)] active:scale-95 group overflow-hidden border border-white/20"
             >
                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-50" />
                <div className="absolute inset-x-0 top-0 h-1/2 bg-white/20 blur-sm rounded-t-full" />
@@ -282,33 +286,40 @@ function App() {
              <Globe size={10} /><span>{lang === 'ar' ? 'EN' : 'ع'}</span>
           </button>
           
-          {user ? (
-             <div className="relative">
-               <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="flex items-center p-0.5 rounded-full hover:bg-slate-800 transition-all">
-                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
-                   {user.displayName?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
-                 </div>
-               </button>
-               {isUserMenuOpen && (
-                 <>
-                   <div className="fixed inset-0 z-10" onClick={() => setIsUserMenuOpen(false)} />
-                   <div className="absolute top-full rtl:left-0 ltr:right-0 mt-2 w-48 bg-surface border border-slate-700 rounded-xl shadow-xl z-20 py-1">
-                     <div className="px-4 py-2 border-b border-slate-700/50">
-                       <div className="text-sm font-bold text-white">{userData?.username || user.displayName}</div>
-                       <div className="text-xs text-slate-400 truncate">{user.email}</div>
+          <div className="relative">
+            <button onClick={() => setIsLibraryOpen(!isLibraryOpen)} className={`w-8 h-8 md:w-9 md:h-9 flex-none rounded-lg flex items-center justify-center transition-all ${isLibraryOpen ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`} title={t.library}>
+              <Library size={18} />
+            </button>
+            {isLibraryOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setIsLibraryOpen(false)} />
+                <div className="absolute top-full rtl:right-0 ltr:left-0 mt-2 w-56 bg-surface/95 backdrop-blur-lg border border-slate-700 rounded-xl shadow-2xl z-20 py-1 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                   <div className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-700/50">{t.library}</div>
+                   <a href="https://turath.io/" target="_blank" rel="noopener noreferrer" className="w-full text-start px-4 py-3 flex items-center justify-between hover:bg-primary/10 text-slate-200 transition-all group">
+                     <div className="flex items-center gap-3">
+                       <ScrollText size={16} className="text-primary group-hover:scale-110 transition-transform" />
+                       <span className="text-sm font-bold">{t.menu.turath}</span>
                      </div>
-                     <button onClick={handleLogout} className="w-full text-start px-4 py-2 flex items-center gap-2 text-red-400 hover:bg-red-500/10 transition-colors text-sm">
-                       <LogOut size={16} />{t.auth.logout}
-                     </button>
-                   </div>
-                 </>
-               )}
-             </div>
-           ) : (
-             <button onClick={() => setIsAuthModalOpen(true)} className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-800 transition-colors border border-slate-700/50">
-               <UserIcon size={16} />
-             </button>
-           )}
+                     <ExternalLink size={12} className="text-slate-500" />
+                   </a>
+                   <a href="https://dorar.net/" target="_blank" rel="noopener noreferrer" className="w-full text-start px-4 py-3 flex items-center justify-between hover:bg-primary/10 text-slate-200 transition-all group">
+                     <div className="flex items-center gap-3">
+                       <Search size={16} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                       <span className="text-sm font-bold">{t.menu.dorar}</span>
+                     </div>
+                     <ExternalLink size={12} className="text-slate-500" />
+                   </a>
+                   <a href="https://furqan.co/" target="_blank" rel="noopener noreferrer" className="w-full text-start px-4 py-3 flex items-center justify-between hover:bg-primary/10 text-slate-200 transition-all group">
+                     <div className="flex items-center gap-3">
+                       <Book size={16} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                       <span className="text-sm font-bold">{t.menu.quran}</span>
+                     </div>
+                     <ExternalLink size={12} className="text-slate-500" />
+                   </a>
+                </div>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="flex-1 flex items-center justify-end overflow-visible px-1 md:px-2">
@@ -320,13 +331,29 @@ function App() {
              <button onClick={() => setIsStatsOpen(!isStatsOpen)} className={`w-8 h-8 md:w-9 md:h-9 flex-none rounded-lg flex items-center justify-center transition-colors ${isStatsOpen ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`} title={t.statistics.title}><Sparkles size={18} /></button>
              <button onClick={() => setIsShortcutsOpen(!isShortcutsOpen)} className={`w-8 h-8 md:w-9 md:h-9 flex-none rounded-lg flex items-center justify-center transition-colors ${isShortcutsOpen ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`} title={t.shortcuts}><Keyboard size={18} /></button>
              <button onClick={() => setMode(mode === 'read' ? 'edit' : 'read')} className={`w-8 h-8 md:w-9 md:h-9 flex-none rounded-lg flex items-center justify-center transition-all ${mode === 'edit' ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>{mode === 'edit' ? <Settings2 size={18} /> : <Edit3 size={18} />}</button>
-             <button onClick={togglePlay} className={`h-8 md:h-9 flex-none px-2.5 md:px-4 rounded-lg font-bold shadow-lg transition-all flex items-center gap-1.5 md:gap-2 active:scale-95 ${isPlaying ? 'bg-amber-500 text-slate-900 hover:bg-amber-400' : 'bg-gradient-to-r from-primary to-cyan-400 text-slate-900 hover:brightness-110'}`}>{isPlaying ? <Pause size={16} fill="currentColor" /> : <Play size={16} fill="currentColor" />}<span className="hidden sm:inline text-xs md:text-sm">{isPlaying ? t.pause : t.read}</span></button>
+             <button 
+                onClick={togglePlay} 
+                className={`h-9 md:h-11 flex-none px-3 md:px-5 rounded-xl font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg ${
+                  isPlaying 
+                    ? 'bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 hover:brightness-110 shadow-[0_0_25px_rgba(245,158,11,0.7)] animate-pulse' 
+                    : 'bg-gradient-to-br from-lime-400 to-emerald-500 text-slate-900 hover:brightness-110 shadow-[0_0_30px_rgba(163,230,53,0.7)]'
+                }`}
+             >
+               {isPlaying ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}
+               <div className="flex flex-col items-start justify-center leading-none">
+                 <span className="text-xs md:text-sm font-black">{isPlaying ? t.pause : t.read}</span>
+                 {currentIndex > -1 && (
+                   <span className="text-[9px] md:text-[10px] font-mono mt-0.5 opacity-90">{timeRemainingString}</span>
+                 )}
+               </div>
+             </button>
           </div>
         </div>
       </header>
 
       <main className={`relative transition-all duration-500 flex flex-col ${isFocusMode ? 'h-full w-full' : 'flex-1 min-h-0'}`}>
-        <div className={`h-1 w-full bg-slate-800 transition-opacity duration-500 ${isFocusMode && !showUI ? 'opacity-0' : 'opacity-100'} z-[210] ${isFocusMode ? 'absolute top-0 md:top-0' : ''}`}>
+        {/* Top Global Progress Bar - Now reacts to isAnyModalOpen */}
+        <div className={`h-1 w-full bg-slate-800 transition-all duration-500 ${((isFocusMode && !showUI) || isAnyModalOpen) ? 'opacity-0 scale-y-0' : 'opacity-100 scale-y-100'} z-[210] ${isFocusMode ? 'absolute top-0 md:top-0' : ''}`}>
           <div className="h-full bg-primary transition-all duration-300 ease-linear" style={{ width: `${progressPercentage}%` }} />
         </div>
         {mode === 'edit' ? (
@@ -354,7 +381,6 @@ function App() {
         )}
       </main>
 
-      {/* Footer Wrapper: Floating (absolute) in Focus Mode */}
       <div className={`transition-all duration-500 transform ${
         isFocusMode 
           ? 'absolute bottom-0 left-0 right-0 z-[200]' 
@@ -368,11 +394,12 @@ function App() {
           lang={lang} 
           isFocusMode={isFocusMode} 
           onToggleFocusMode={toggleFocusMode} 
+          isColorMenuOpen={isColorMenuOpen}
+          onToggleColorMenu={setIsColorMenuOpen}
         />
       </div>
       
       <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} shortcuts={shortcuts} onUpdateShortcuts={setShortcuts} lang={lang} />
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} lang={lang} />
       <StatisticsModal isOpen={isStatsOpen} onClose={() => setIsStatsOpen(false)} localSessions={sessions} lang={lang} />
       <DonateModal isOpen={isDonateOpen} onClose={() => setIsDonateOpen(false)} lang={lang} />
     </div>

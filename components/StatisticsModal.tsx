@@ -1,9 +1,8 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { X, Trophy, Activity, Clock, BookOpen, BarChart2 } from 'lucide-react';
 import { TRANSLATIONS } from '../constants';
 import { Language, ReadingSession } from '../types';
-import { useAuth } from '../AuthContext';
 
 interface StatisticsModalProps {
   isOpen: boolean;
@@ -13,24 +12,15 @@ interface StatisticsModalProps {
 }
 
 const StatisticsModal: React.FC<StatisticsModalProps> = ({ isOpen, onClose, localSessions, lang }) => {
-  const { user, userData } = useAuth();
   const t = TRANSLATIONS[lang].statistics;
-
-  const displaySessions = useMemo(() => {
-    // دمج جلسات Firestore مع الجلسات المحلية غير المحفوظة
-    if (userData?.sessions) {
-      return [...userData.sessions, ...localSessions];
-    }
-    return localSessions;
-  }, [userData, localSessions]);
 
   if (!isOpen) return null;
 
-  const totalSessions = displaySessions.length;
-  const totalWords = displaySessions.reduce((acc, s) => acc + s.wordsRead, 0);
-  const totalTimeSeconds = displaySessions.reduce((acc, s) => acc + s.duration, 0);
+  const totalSessions = localSessions.length;
+  const totalWords = localSessions.reduce((acc, s) => acc + s.wordsRead, 0);
+  const totalTimeSeconds = localSessions.reduce((acc, s) => acc + s.duration, 0);
   const avgSpeed = totalSessions > 0 
-    ? Math.round(displaySessions.reduce((acc, s) => acc + s.wpm, 0) / totalSessions) 
+    ? Math.round(localSessions.reduce((acc, s) => acc + s.wpm, 0) / totalSessions) 
     : 0;
   
   const formatTotalTime = (secs: number) => {
@@ -95,10 +85,10 @@ const StatisticsModal: React.FC<StatisticsModalProps> = ({ isOpen, onClose, loca
                  <Clock size={18} className="text-slate-500"/>{t.sessions}
               </h3>
               <div className="space-y-2 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
-                {displaySessions.length === 0 ? (
+                {localSessions.length === 0 ? (
                   <div className="text-center py-8 text-slate-500 italic border border-dashed border-slate-800 rounded-2xl">{t.noData}</div>
                 ) : (
-                  displaySessions.slice().reverse().map((session) => (
+                  localSessions.slice().reverse().map((session) => (
                     <div key={session.id} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-xl border border-slate-700/50 hover:bg-slate-800 transition-colors">
                        <span className="text-sm font-medium text-slate-300">{new Date(session.date).toLocaleDateString(lang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' })}</span>
                        <div className="flex items-center gap-4 text-xs">

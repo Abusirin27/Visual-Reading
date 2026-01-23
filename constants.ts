@@ -24,34 +24,19 @@ export const ARABIC_FONTS: FontOption[] = [
   { name: 'Mirza', family: '"Mirza", serif' },
 ];
 
-export const TEXT_COLORS = [
-  { name: 'Black', value: '#000000' },
+export const ESSENTIAL_COLORS = [
   { name: 'White', value: '#ffffff' },
   { name: 'Slate', value: '#e2e8f0' },
-  { name: 'Gray', value: '#9ca3af' },
-  { name: 'Zinc', value: '#a1a1aa' },
-  { name: 'Neutral', value: '#a3a3a3' },
-  { name: 'Stone', value: '#a8a29e' },
-  { name: 'Cream', value: '#fef3c7' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Orange', value: '#f97316' },
-  { name: 'Amber', value: '#fbbf24' },
   { name: 'Yellow', value: '#facc15' },
   { name: 'Lime', value: '#a3e635' },
-  { name: 'Green', value: '#4ade80' },
-  { name: 'Emerald', value: '#34d399' },
-  { name: 'Teal', value: '#2dd4bf' },
   { name: 'Cyan', value: '#22d3ee' },
   { name: 'Sky', value: '#38bdf8' },
-  { name: 'Blue', value: '#60a5fa' },
-  { name: 'Indigo', value: '#818cf8' },
-  { name: 'Violet', value: '#a78bfa' },
   { name: 'Purple', value: '#c084fc' },
-  { name: 'Fuchsia', value: '#e879f9' },
   { name: 'Pink', value: '#f472b6' },
-  { name: 'Rose', value: '#fb7185' },
-  { name: 'Brown', value: '#a16207' },
+  { name: 'Red', value: '#ef4444' },
 ];
+
+export const TEXT_COLORS = ESSENTIAL_COLORS;
 
 export const ALL_READING_MODES: ReadingMode[] = [
   'typewriter', 
@@ -97,6 +82,7 @@ export const DEFAULT_SHORTCUTS: ShortcutMap = {
   reset: 'r',
   nextFont: 'f',
   nextColor: 'c',
+  nextHighlightColor: 'v',
   incGlow: ']',
   decGlow: '[',
   toggleBold: 'b',
@@ -124,17 +110,51 @@ export const DEFAULT_SETTINGS: ReaderSettings = {
   glowIntensity: 0,
 };
 
-export const SAMPLE_TEXT = `أهلاً بك في تطبيق القراءة البصرية السريعة!
+export const SAMPLE_TEXT = `بسم الله الرحمن الرحيم
+والصلاة والسلام على رسول الله وعلى آله وصحبه أجمعين.
 
-هذا البرنامج مصمم لمساعدتك على قراءة النصوص العربية بتركيز عالٍ وسرعة فائقة. إليك دليل سريع للبدء:
+مرحبًا بك في تطبيق القراءة البصرية ✨
 
-1. الصق النص الذي تود قراءته هنا في هذا المحرر.
-2. اضغط على زر "قراءة" أو مفتاح (المسافة) للبدء في العرض البصري.
-3. استخدم مفاتيح الأسهم (يمين/يسار) للتنقل يدوياً بين الكلمات.
-4. يمكنك التحكم في سرعة القراءة (WPM) وحجم الخط من الشريط السفلي.
-5. جرب أنماط القراءة المختلفة من قائمة "النمط" لتجد ما يناسب عينيك.
+هذا التطبيق هو أداتك المتقدمة لتطوير مهارة القراءة السريعة وتعزيز التركيز البصري، من خلال تقنيات عرض حديثة وتجربة استخدام مرنة وقابلة للتخصيص. فيما يلي شرح مفصّل لوظائف التطبيق لمساعدتك على الاستفادة القصوى منه:
 
-نتمنى لك رحلة قراءة ممتعة ومثمرة!`;
+🔹 أولًا: شريط الأدوات العلوي
+
+زر القراءة: لبدء العرض البصري للنص.
+
+أيقونة التحرير: للتبديل بين وضع القراءة ووضع إدخال أو تعديل النص.
+
+أيقونة المكتبة: وصول مباشر إلى مصادر علمية موثوقة مثل:
+- الباحث القرآني
+- الدرر السنية
+- المكتبة الشاملة
+
+أيقونة بومودورو: مؤقّت ذكي لتنظيم وقت القراءة والراحة وزيادة الإنتاجية.
+
+أيقونة الإحصائيات: لمتابعة تقدّمك ومعرفة عدد الكلمات المقروءة والزمن المستغرق.
+
+🔹 ثانيًا: شريط الإعدادات السفلي
+
+السرعة (WPM): التحكم بعدد الكلمات المعروضة في الدقيقة حسب مستواك.
+
+الخط والحجم: اختيار من مجموعة متنوعة من الخطوط العربية والقرآنية مع إمكانية ضبط حجم النص.
+
+الألوان والتوهج: تخصيص لون النص، لون التمييز، ولون الخلفية بما يريح العين.
+
+نمط التركيز (Z): إخفاء جميع عناصر الواجهة للاندماج الكامل في القراءة دون تشتيت.
+
+🔹 ثالثًا: أنماط القراءة
+
+يمكنك تغيير نمط العرض من الشريط السفلي لتجربة أساليب قراءة مختلفة، مثل:
+- نمط الآلة الكاتبة
+- نمط كلمة بكلمة
+- نمط تسليط الضوء
+- وغيرها من الأنماط المتقدمة
+
+🔹 رابعًا: اختصارات لوحة المفاتيح
+
+اضغط على أيقونة لوحة المفاتيح في الأعلى للاطلاع على جميع الاختصارات التي تتيح لك التحكم الكامل في التطبيق دون استخدام الفأرة، مما يجعل تجربتك أسرع وأكثر احترافية.
+
+📌 ابدأ الآن بلصق نصك الخاص، واستمتع بتجربة قراءة فريدة تجمع بين السرعة، التركيز، والراحة البصرية.`;
 
 export const TRANSLATIONS = {
   ar: {
@@ -155,7 +175,7 @@ export const TRANSLATIONS = {
     donate: 'تبرع',
     menu: {
       turath: 'تراث',
-      quran: 'القرآن الكريم (تفسير)',
+      quran: 'الباحث القرآني',
       dorar: 'الدرر السنية',
     },
     auth: {
@@ -251,7 +271,8 @@ export const TRANSLATIONS = {
         decBrightness: 'إنقاص السطوع (الشاشة)',
         reset: 'العودة للبداية',
         nextFont: 'تغيير الخط',
-        nextColor: 'تغيير اللون',
+        nextColor: 'تغيير لون النص',
+        nextHighlightColor: 'تغيير لون التمييز',
         incGlow: 'زيادة توهج النص',
         decGlow: 'إنقاص توهج النص',
         toggleBold: 'تغيير السماكة (غامق)',
@@ -328,7 +349,7 @@ export const TRANSLATIONS = {
     donate: 'Donate',
     menu: {
       turath: 'Turath',
-      quran: 'The Holy Quran (Tafsir)',
+      quran: 'The Quranic Researcher',
       dorar: 'Dorar Saniyyah',
     },
     auth: {
@@ -424,7 +445,8 @@ export const TRANSLATIONS = {
         decBrightness: 'Decrease Brightness (Screen)',
         reset: 'Reset to Start',
         nextFont: 'Next Font',
-        nextColor: 'Next Color',
+        nextColor: 'Next Text Color',
+        nextHighlightColor: 'Next Highlight Color',
         incGlow: 'Increase Text Glow',
         decGlow: 'Decrease Text Glow',
         toggleBold: 'Toggle Bold',

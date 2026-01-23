@@ -3,7 +3,10 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getAuth, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
-// ملاحظة: يجب استبدال هذه القيم بقيم مشروعك من لوحة تحكم Firebase
+/**
+ * Replace the placeholder values with your actual Firebase project config.
+ * You can find this in the Firebase Console -> Project Settings -> General.
+ */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
   authDomain: "YOUR_PROJECT_ID.firebaseapp.com",

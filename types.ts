@@ -57,6 +57,7 @@ export interface ShortcutMap {
   reset: string;
   nextFont: string;
   nextColor: string;
+  nextHighlightColor: string;
   incGlow: string;
   decGlow: string;
   toggleBold: string;

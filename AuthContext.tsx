@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, User } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { auth, db } from './firebase';
-import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+import { doc, onSnapshot, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
 
 interface AuthContextType {
   user: User | null;
@@ -18,37 +18,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    // Listen to Firebase Auth state changes
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      
       if (currentUser) {
-        const docRef = doc(db, "users", currentUser.uid);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          setUserData(docSnap.data());
-        } else {
-          // إنشاء وثيقة افتراضية إذا لم تكن موجودة
+        const userRef = doc(db, "users", currentUser.uid);
+        
+        // Ensure user document exists (useful for Google Login or first-time sync)
+        const docSnap = await getDoc(userRef);
+        if (!docSnap.exists()) {
           const initialData = {
-            username: currentUser.displayName || currentUser.email?.split('@')[0],
+            username: currentUser.displayName || currentUser.email?.split('@')[0] || "User",
             email: currentUser.email,
             total_words_read: 0,
             reading_time: 0,
+            sessions: [],
             createdAt: Date.now()
           };
-          await setDoc(docRef, initialData);
-          setUserData(initialData);
+          await setDoc(userRef, initialData);
         }
+
+        // Set up a real-time listener for the user's data (stats, sessions, etc.)
+        const unsubscribeDoc = onSnapshot(userRef, (snapshot) => {
+          if (snapshot.exists()) {
+            setUserData(snapshot.data());
+          }
+        });
+
+        setLoading(false);
+        return () => unsubscribeDoc();
       } else {
         setUserData(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
 
   return (
     <AuthContext.Provider value={{ user, userData, loading }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
